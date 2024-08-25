@@ -1,28 +1,25 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-    static int a, b;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(br.readLine());
-
-        a = Integer.parseInt(st.nextToken());
-        b = Integer.parseInt(st.nextToken());
-
-        int A = Math.min(a, b);
-        int B = Math.max(a, b);
-
-        if (A == B) {
-            System.out.print(0);
-            return;
+        ;
+        long a = Long.parseLong(st.nextToken());
+        long b = Long.parseLong(st.nextToken());
+        if (a > b) {
+            long tmp = a;
+            a = b;
+            b = tmp;
         }
-        System.out.println(B - A - 1);
-        for (int i = A + 1; i < B; i++) {
-            System.out.print(i + " ");
+        if (a == b)
+            sb.append(b - a).append("\n");
+        else sb.append(b - a - 1).append("\n");
+        for (long i = a + 1; i < b; i++) {
+            sb.append(i).append(" ");
         }
+        System.out.println(sb);
     }
 }
