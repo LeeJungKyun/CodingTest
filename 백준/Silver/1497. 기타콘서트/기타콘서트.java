@@ -1,60 +1,70 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
-public class Main {
-  static int n, m;
-  static String[] arr;
-  static int maxSongCount = -1;
-  static int minGuitarCount = Integer.MAX_VALUE;
-  public static void main(String[] args) throws IOException {
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    StringTokenizer st = new StringTokenizer(br.readLine());
+class Main {
 
-    n = Integer.parseInt(st.nextToken());
-    m = Integer.parseInt(st.nextToken());
+    static int answer;
 
-    arr = new String[n];
+    static long convertToLong(String song) {
 
-    for (int idx = 0; idx < n; idx++){
-      st = new StringTokenizer(br.readLine());
-      st.nextToken();
-      String str = st.nextToken();
-      StringBuilder sb = new StringBuilder();
-
-      //기타 길이
-      for (int i = 0; i < str.length(); i++) {
-        sb.append(str.charAt(i) == 'Y' ? "1" : "0");
-      }
-
-      arr[idx] = String.valueOf(sb);
-    }
-
-    //조합 확인 1 ~ n 까지 2진수로 백트래킹
-    for (long mask = 1; mask < (1L << n); mask++) {
-      long songMask = 0;
-      int guitarCount = 0;
-
-      //각 기타에 대해서
-      for (int i = 0; i < n; i++) {
-        //i번째 기타가 켜져 있으면
-        if ((mask & (1L << i)) != 0) {
-          //i번째 기타랑 OR 연산을 통해 나올 수 있는 곡의 개수 확인
-          songMask |= Long.parseLong(arr[i], 2);
-          guitarCount++;
+        StringBuilder sb = new StringBuilder();
+        for (char c : song.toCharArray()) {
+            if (c == 'Y') sb.append("1");
+            else sb.append("0");
         }
-      }
 
-      //bitCount로 몇개 칠 수 있는지 확인
-      int songCount = Long.bitCount(songMask);
-      if (songCount > maxSongCount) {
-        maxSongCount = songCount;
-        minGuitarCount = guitarCount;
-      } else if (songCount == maxSongCount) {
-        minGuitarCount = Math.min(minGuitarCount, guitarCount);
-      }
+        String num = sb.toString();
+        return Long.parseLong(num, 2);
     }
-    System.out.println(maxSongCount == 0 ? -1 : minGuitarCount);
-  }
+
+    public static void main(String[] args) throws IOException {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken());
+        int M = Integer.parseInt(st.nextToken());
+
+        long[] songs = new long[N];
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            st.nextToken();
+            String song = st.nextToken();
+
+            songs[i] = convertToLong(song);
+        }
+
+
+        int minGuitarCount = Integer.MAX_VALUE;
+        int maxSongCount = -1;
+        for (long i = 1; i < (1L << N); i++) { // 모든 경우의 수
+
+            long songMask = 0; // 백트래킹
+            int guitarCount = 0;
+            for (int j = 0; j < N; j++) { // 뽑아야 되는 기타
+                if ((i & (1L << j)) != 0) { // 뽑는 조건
+                    guitarCount++;
+                    songMask |= songs[j]; // 비트에 저장
+                }
+            }
+
+            int songCount = Long.bitCount(songMask); // 가능한 노래 개수
+
+            if (maxSongCount < songCount) {
+                maxSongCount = songCount;
+                minGuitarCount = guitarCount;
+            } else if (maxSongCount == songCount) {
+                minGuitarCount = Math.min(minGuitarCount, guitarCount);
+            }
+
+        }
+
+        if (maxSongCount == 0) {
+            System.out.print(-1);
+        } else {
+            System.out.print(minGuitarCount);
+        }
+
+    }
 }
