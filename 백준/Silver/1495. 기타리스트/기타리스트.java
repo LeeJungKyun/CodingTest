@@ -2,66 +2,56 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static class Song{
-        int num, volume;
-
-        public Song(int num, int volume) {
-            this.num = num;
-            this.volume = volume;
-        }
-    }
-    static int N, S, M;
-    static int[] V;
-    static boolean[][] visited;
-
+    static int n, s, m;
+    static int[] arr;
+    static int[][] dp;
+    static int result = -1;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        // 입력 처리
-        N = Integer.parseInt(st.nextToken()); // 곡 수
-        S = Integer.parseInt(st.nextToken()); // 시작 볼륨
-        M = Integer.parseInt(st.nextToken()); // 최대 볼륨
+        n = Integer.parseInt(st.nextToken());
+        s = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
 
-        V = new int[N];
+        //곡 별 볼륨 저장
+        arr = new int[n];
         st = new StringTokenizer(br.readLine());
-        for (int i = 0; i < N; i++) {
-            V[i] = Integer.parseInt(st.nextToken());
+        for (int i = 0; i < n; i++) {
+            arr[i] = Integer.parseInt(st.nextToken());
         }
 
-        visited = new boolean[N + 1][M + 1];
-        Queue<Song> queue = new LinkedList<>();
-        queue.add(new Song(0, S));
-        visited[0][S] = true;
+        dp = new int[n + 1][m + 1];
 
-        while (!queue.isEmpty()) {
-            Song current = queue.poll();
-            int idx = current.num;
-            int volume = current.volume;
+        dp[0][s] = 1;
 
-            if (idx == N) continue;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= m; j++) {
+                // i-1 번째 곡의 j라는 볼륨을 연주 가능
+                if (dp[i][j] == 1) {
+                    int plus = j + arr[i];
+                    if (isValid(plus)) {
+                        dp[i + 1][plus] = 1;
+                    }
 
-            int up = volume + V[idx];
-            int down = volume - V[idx];
-
-            if (up <= M && !visited[idx + 1][up]) {
-                visited[idx + 1][up] = true;
-                queue.add(new Song(idx + 1, up));
-            }
-
-            if (down >= 0 && !visited[idx + 1][down]) {
-                visited[idx + 1][down] = true;
-                queue.add(new Song(idx + 1, down));
+                    int minus = j - arr[i];
+                    if (isValid(minus)) {
+                        dp[i + 1][minus] = 1;
+                    }
+                }
             }
         }
 
-        int result = -1;
-        for (int vol = 0; vol <= M; vol++) {
-            if (visited[N][vol]) {
-                result = Math.max(result, vol);
+        for (int i = 0; i <= m; i++) {
+            if (dp[n][i] == 1) {
+                result = Math.max(result, i);
             }
         }
 
         System.out.println(result);
+    }
+
+    public static boolean isValid(int num) {
+        return (0 <= num && num <= m);
     }
 }
