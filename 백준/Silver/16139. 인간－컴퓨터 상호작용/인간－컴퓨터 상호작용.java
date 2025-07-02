@@ -2,37 +2,34 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static String str;
-    static ArrayList<int[]> list;
-    static int q;
+    static int[][] prefixSum;
     static StringBuilder sb = new StringBuilder();
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        str = br.readLine();
+        String str = br.readLine();
+        int len = str.length();
+        prefixSum = new int[len + 1][26];
 
-        list = new ArrayList<>();
-
-        for (int i = 0; i < str.length(); i++) {
-            String subStr = str.substring(0, i + 1);
-            list.add(new int[26]);
-            for (char ch : subStr.toCharArray()) {
-                list.get(i)[ch - 'a']++;
+        for (int i = 1; i <= len; i++) {
+            int ch = str.charAt(i - 1) - 'a';
+            for (int j = 0; j < 26; j++) {
+                prefixSum[i][j] = prefixSum[i - 1][j];
             }
+            prefixSum[i][ch]++;
         }
 
-        q = Integer.parseInt(br.readLine());
+        int q = Integer.parseInt(br.readLine());
         while (q-- > 0) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             char target = st.nextToken().charAt(0);
             int start = Integer.parseInt(st.nextToken());
             int end = Integer.parseInt(st.nextToken());
 
-            if (start == 0) {
-                sb.append(list.get(end)[target - 'a']).append('\n');
-            } else {
-                sb.append(list.get(end)[target - 'a'] - list.get(start - 1)[target - 'a']).append('\n');
-            }
+            int t = target - 'a';
+            int result = prefixSum[end + 1][t] - prefixSum[start][t];
+            sb.append(result).append('\n');
         }
+
         System.out.println(sb);
     }
 }
