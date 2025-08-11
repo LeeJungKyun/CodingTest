@@ -4,13 +4,16 @@ import java.util.*;
 public class Main {
     static class Point {
         int x, y;
-        Point(int x, int y) { this.x = x; this.y = y; }
+        Point(int x, int y) {
+        	this.x = x;
+        	this.y = y;
+        }
     }
 
     static int n, m, t, k;
     static List<Point> invaders = new ArrayList<>();
 
-    public static int countInRange(int x, int y) {
+    public static int countInvaders(int x, int y) {
         int count = 0;
         for (Point p : invaders) {
             if (x <= p.x && p.x <= x + k && y <= p.y && p.y <= y + k) {
@@ -41,17 +44,19 @@ public class Main {
 
         for (int i = 0; i < t; i++) {
             for (int j = 0; j < t; j++) {
-                int xx = invaders.get(i).x;
-                int yy = invaders.get(j).y;
+                int x = invaders.get(i).x;
+                int y = invaders.get(j).y;
 
-                if (xx + k > n) xx = n - k;
-                if (yy + k > m) yy = m - k;
+                if (x + k > n)
+                	x = n - k;
+                if (y + k > m)
+                	y = m - k;
 
-                int currentCount = countInRange(xx, yy);
+                int currentCount = countInvaders(x, y);
                 if (currentCount > maxCount) {
                     maxCount = currentCount;
-                    bestX = xx;
-                    bestY = yy + k; // 출력은 오른쪽 위 점의 y좌표
+                    bestX = x;
+                    bestY = y + k;
                 }
             }
         }
