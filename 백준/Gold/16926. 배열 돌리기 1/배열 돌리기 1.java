@@ -1,8 +1,16 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
+/**
+ * @author 이정균
+ * 1. n, m, r입력
+ * 2. n x m 배열 입력
+ * 3. 내가 회전시켜야 하는 겹의 개수 layer -> min(n, m) / 2
+ * 4. r번 회전시키는 반복문
+ * 5. 레이어의 개수만큼 반복
+ * 6. 레이어의 인덱스 [0, 0] ~ [layer, layer] 부터 시작해서 시작 지점을 temp로 잡아두고 각 행 밀기 위 -> 오른쪽 -> 아래 -> 왼쪽
+ * 7. 배열 출력
+ */
 public class Main {
     static int n, m, r;
     static int[][] arr;
@@ -11,10 +19,12 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
+        //1. n, m, r입력
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
         r = Integer.parseInt(st.nextToken());
 
+        //2. n x m 배열 입력
         arr = new int[n][m];
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
@@ -23,14 +33,15 @@ public class Main {
             }
         }
 
-        //겹 개수
+        //3. 내가 회전시켜야 하는 겹의 개수 layer -> min(n, m) / 2
         int layer = Math.min(n, m) / 2;
 
-        //전체 배열을 r번 회전시킬건데
+        //4. r번 회전시키는 반복문
         for (int i = 0; i < r; i++) {
-            //레이어의 개수만큼 반복
+            //5. 레이어의 개수만큼 반복
             for (int j = 0; j < layer; j++) {
-                //j번째 layer에 대해서 j, j부터 시작
+                //6. 레이어의 인덱스 [0, 0] ~ [layer, layer] 부터 시작해서 시작 지점을 temp로 잡아두고
+            	//각 행 밀기 위 -> 오른쪽 -> 아래 -> 왼쪽
                 int temp = arr[j][j];
 
                 //위쪽 행
@@ -49,10 +60,11 @@ public class Main {
                 for (int k = n - 2 - j; k >= j; k--) {
                     arr[k + 1][j] = arr[k][j];
                 }
-                arr[j+1][j] = temp;
+                arr[j + 1][j] = temp;
             }
         }
 
+        //7. 배열 출력
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 sb.append(arr[i][j]).append(" ");
