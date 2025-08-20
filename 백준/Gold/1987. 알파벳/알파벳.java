@@ -1,31 +1,13 @@
-import javax.sound.sampled.Line;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     static int r, c;
+    static char[][] arr;
+    static boolean[] isUsed = new boolean[26];
+    static int maxCount = 0;
     static int[] dx = {-1, 0, 1, 0};
     static int[] dy = {0, -1, 0, 1};
-    static char[][] board;
-    static boolean[][] visited;
-    static Queue<Point> queue;
-    static ArrayList<Character> alphabet;
-    static int result;
-
-    public static class Point {
-        int x;
-        int y;
-
-        public Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -33,39 +15,36 @@ public class Main {
 
         r = Integer.parseInt(st.nextToken());
         c = Integer.parseInt(st.nextToken());
-
-        queue = new LinkedList<>();
-        alphabet = new ArrayList<>();
-
-        board = new char[r][c];
-        visited = new boolean[r][c];
+        arr = new char[r][c];
 
         for (int i = 0; i < r; i++) {
-            String str = br.readLine();
+            String line = br.readLine();
             for (int j = 0; j < c; j++) {
-                board[i][j] = str.charAt(j);
+                arr[i][j] = line.charAt(j);
             }
         }
 
+        isUsed[arr[0][0] - 'A'] = true;
         dfs(0, 0, 1);
 
-        System.out.println(result);
+        System.out.println(maxCount);
     }
 
-    public static void dfs(int x, int y, int depth) {
-        alphabet.add(board[x][y]);
-        result = Math.max(result, depth);
+    static void dfs(int x, int y, int count) {
+        maxCount = Math.max(maxCount, count);
 
-        for (int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
+        for (int dir = 0; dir < 4; dir++) {
+            int nx = x + dx[dir];
+            int ny = y + dy[dir];
 
             if (nx >= 0 && nx < r && ny >= 0 && ny < c) {
-                if (!alphabet.contains(board[nx][ny])) {
-                    dfs(nx, ny, depth + 1);
+                int alphaIndex = arr[nx][ny] - 'A';
+                if (!isUsed[alphaIndex]) {
+                    isUsed[alphaIndex] = true;
+                    dfs(nx, ny, count + 1);
+                    isUsed[alphaIndex] = false;
                 }
             }
         }
-        alphabet.remove(Character.valueOf(board[x][y]));
     }
 }
