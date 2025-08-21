@@ -1,82 +1,111 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
+/**
+ * @author 이정균 R : 0 G : 1 B : 2
+ */
 public class Main {
-    static int n;
-    static char[][] arr;
-    static boolean[][] visited;
-    static int[] dx = {-1, 0, 1, 0};
-    static int[] dy = {0, 1, 0, -1};
-    static StringBuilder sb;
+	static class Point {
+		int x, y;
 
-    public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(System.in);
-        sb = new StringBuilder();
-        n = sc.nextInt();
-        arr = new char[n][n];
-        visited = new boolean[n][n];
+		public Point(int x, int y) {
+			super();
+			this.x = x;
+			this.y = y;
+		}
+	}
 
-        sc.nextLine();
+	static int[] dx = { -1, 0, 1, 0 };
+	static int[] dy = { 0, -1, 0, 1 };
+	static ArrayDeque<Point> queue;
+	static int[][] normalArr, weakArr;
+	static boolean[][] visited;
+	static int n;
+	static int normalCount = 0, weakCount = 0;
+	static BufferedReader br;
+	static StringBuilder sb = new StringBuilder();
+	static StringTokenizer st;
 
-        //RGB 입력
-        for (int i = 0; i < n; i++) {
-            String str = sc.nextLine();
-            for (int j = 0; j < n; j++) {
-                arr[i][j] = str.charAt(j);
-            }
-        }
+	public static void main(String[] args) throws IOException {
+		br = new BufferedReader(new InputStreamReader(System.in));
+		n = Integer.parseInt(br.readLine());
+		
+		normalArr = new int[n][n];
+		weakArr = new int[n][n];
 
-        //정상인 경우
-        int cnt = 0;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (!visited[i][j]) {
-                    dfs(i, j);
-                    cnt++;
-                }
-            }
-        }
-        sb.append(cnt).append(" ");
+		for (int i = 0; i < n; i++) {
+			String input = br.readLine();
+			for (int j = 0; j < n; j++) {
+				char ch = input.charAt(j);
+				if (ch == 'R') {
+					normalArr[i][j] = 0;
+					weakArr[i][j] = 0;
+				} else if (ch == 'G') {
+					normalArr[i][j] = 1;
+					weakArr[i][j] = 0;
+				} else {
+					normalArr[i][j] = 2;
+					weakArr[i][j] = 2;
+				}
+			}
+		}
 
-        visited = new boolean[n][n];
+		// normalArr 구역 확인
+		visited = new boolean[n][n];
+		queue = new ArrayDeque<>();
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (!visited[i][j]) {
+					int curColor = normalArr[i][j];
+					visited[i][j] = true;
+					queue.add(new Point(i, j));
+					while (!queue.isEmpty()) {
+						Point cur = queue.poll();
 
-        //적록색약인 경우
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (arr[i][j] == 'G') {
-                    arr[i][j] = 'R';
-                }
-            }
-        }
+						for (int dir = 0; dir < 4; dir++) {
+							int nx = cur.x + dx[dir];
+							int ny = cur.y + dy[dir];
 
-        cnt = 0;
+							if (0 <= nx && nx < n && 0 <= ny && ny < n && !visited[nx][ny]
+									&& normalArr[nx][ny] == curColor) {
+								queue.add(new Point(nx, ny));
+								visited[nx][ny] = true;
+							}
+						}
+					}
+					normalCount++;
+				}
+			}
+		}
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (!visited[i][j]) {
-                    dfs(i, j);
-                    cnt++;
-                }
-            }
-        }
-        sb.append(cnt);
+		// weakArr 구역 확인
+		visited = new boolean[n][n];
+		queue = new ArrayDeque<>();
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (!visited[i][j]) {
+					int curColor = weakArr[i][j];
+					visited[i][j] = true;
+					queue.add(new Point(i, j));
+					while (!queue.isEmpty()) {
+						Point cur = queue.poll();
 
-        System.out.println(sb);
-    }
+						for (int dir = 0; dir < 4; dir++) {
+							int nx = cur.x + dx[dir];
+							int ny = cur.y + dy[dir];
 
-    public static void dfs(int x, int y) {
-        visited[x][y] = true;
-        char tmp = arr[x][y];
-        for (int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-
-            if (nx >= 0 && nx < n && ny >= 0 && ny < n && !visited[nx][ny] && arr[nx][ny] == tmp) {
-                dfs(nx, ny);
-            }
-        }
-    }
+							if (0 <= nx && nx < n && 0 <= ny && ny < n && !visited[nx][ny]
+									&& weakArr[nx][ny] == curColor) {
+								queue.add(new Point(nx, ny));
+								visited[nx][ny] = true;
+							}
+						}
+					}
+					weakCount++;
+				}
+			}
+		}
+		
+		System.out.println(normalCount + " " + weakCount);
+	}
 }
