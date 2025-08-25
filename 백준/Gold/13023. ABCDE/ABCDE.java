@@ -1,12 +1,12 @@
-import java.nio.Buffer;
 import java.util.*;
 import java.io.*;
+
 public class Main {
     static List<Integer>[] list;
     //사람의 수
     static int n;
     //친구 관계의 수
-    static int pair;
+    static int m;
     static boolean[] visited;
     static int flag = 1;
     static int depth = 0;
@@ -15,14 +15,14 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
 
         n = Integer.parseInt(st.nextToken());
-        pair = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
         list = new ArrayList[n];
 
         for(int i = 0; i < n; i++){
             list[i] = new ArrayList<>();
         }
 
-        for (int i = 0; i < pair; i++) {
+        for (int i = 0; i < m; i++) {
             st = new StringTokenizer(br.readLine());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
@@ -42,7 +42,7 @@ public class Main {
         System.out.println(0);
     }
 
-    public static void dfs(int start, int depth){
+    public static void dfs(int start, int depth) {
         if(depth == 5){
             flag = 1;
             return;
