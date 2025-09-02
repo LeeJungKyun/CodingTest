@@ -1,6 +1,12 @@
 import java.io.*;
 import java.util.*;
 
+/**
+ * @author 이정균
+ * Point 객체에 좌표, 말처럼 이동 몇번했는지, 이동 몇번했는지 저장
+ * 일반 이동했는지, 말처럼 이동했는지 경우에 따라서 방문
+ *
+ */
 public class Main {
 	static class Point{
 		int x, y, knightCount, depth;
