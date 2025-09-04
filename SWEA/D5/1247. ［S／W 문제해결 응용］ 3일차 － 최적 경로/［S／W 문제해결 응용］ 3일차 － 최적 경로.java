@@ -2,113 +2,102 @@ import java.io.*;
 import java.util.*;
 
 /**
- * @author 이정균
- * * N명의 고객
- * 회사, 집, 집의 좌표는 이차원 정수 좌표
- * 거리는 맨해튼 거리
- * * 회사 출발 -> N명의 고객을 모두 방문 -> 집으로 돌아오는 최소 경로
- * * 1. 테케 입력
- * 2. N입력
- * 3. 한줄 입력받아서 첫 좌표 회사, 두번째는 집, 나머지 손님
- * 4. 재귀함수를 이용해 모든 순열을 탐색
+ * @author 이정균 DP배열을 만드는데 [1 << n][n] 크기로 선언
+ * 일단 dp 초기값은 거리로 저장해놓기
+ * visited 1 ~ 1 << n 까지 돌면서 확인 
+ *
  */
-
 public class Solution {
 	static class Point {
 		int x, y;
 
 		public Point(int x, int y) {
-			super();
 			this.x = x;
 			this.y = y;
 		}
 	}
-	
+
+	static final int MAX = Integer.MAX_VALUE;
 	static int testCase;
 	static int n;
-	static int minDistance; // 최소 거리를 저장할 변수
+	static int minDistance;
+	static Point[] customerArr;
 	static Point home, company;
-	static Point[] customerArr; // 고객 좌표를 배열로 저장
-	static boolean[] visited; // 고객 방문 여부 체크
-	
+	static int[][] dp;
 	static BufferedReader br;
 	static StringBuilder sb = new StringBuilder();
 	static StringTokenizer st;
 
 	public static void main(String[] args) throws IOException {
 		br = new BufferedReader(new InputStreamReader(System.in));
-		
-		//1. 테케 입력
+
 		testCase = Integer.parseInt(br.readLine());
-		
-		for(int tc = 1; tc <= testCase; tc++) {
-			//2. N입력
+
+		for (int tc = 1; tc <= testCase; tc++) {
 			n = Integer.parseInt(br.readLine());
-			
-			//3. 한줄 입력받아서 첫 좌표 회사, 두번째는 집, 나머지 손님
+
 			st = new StringTokenizer(br.readLine());
-			
-			//회사
+
 			company = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-			
-			//집
 			home = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-			
-			//나머지 손님
+
 			customerArr = new Point[n];
-			for(int i = 0; i < n; i++) {
-				int x = Integer.parseInt(st.nextToken());
-				int y = Integer.parseInt(st.nextToken());
-				
-				customerArr[i] = new Point(x, y);
+			for (int i = 0; i < n; i++) {
+				customerArr[i] = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 			}
-			
-			// 변수 초기화
-			minDistance = Integer.MAX_VALUE;
-			visited = new boolean[n];
-			
-			// 4. 재귀함수를 이용해 모든 순열을 탐색
-			// 시작점은 회사, 현재까지 거리는 0, 방문한 고객 수 0
-			dfs(company, 0, 0);
-			
-			//출력
+
+			// DP 배열 초기화
+			dp = new int[1 << n][n];
+			for (int[] row : dp) {
+				Arrays.fill(row, MAX);
+			}
+
+			// DP 초기값 설정: 회사 -> 각 고객으로 가는 거리
+			for (int i = 0; i < n; i++) {
+				dp[1 << i][i] = calculateDistance(company, customerArr[i]);
+			}
+
+			// DP 계산
+			for (int visited = 1; visited < (1 << n); visited++) {
+				for (int i = 0; i < n; i++) {
+					// 현재 위치 i를 방문한 경우
+					if ((visited & (1 << i)) != 0) {
+						// dp[visited][i]가 유효한 값인 경우에만 진행
+						if (dp[visited][i] == MAX)
+							continue;
+
+						// 다음 방문할 고객 j를 탐색
+						for (int j = 0; j < n; j++) {
+							// j를 아직 방문하지 않은 경우만 확인
+							if ((visited & (1 << j)) != 0)
+								continue;
+							int newVisited = visited | (1 << j);
+							int newDistance = dp[visited][i] + calculateDistance(customerArr[i], customerArr[j]);
+
+							// 최소 거리 갱신
+							if (newDistance < dp[newVisited][j]) {
+								dp[newVisited][j] = newDistance;
+							}
+						}
+					}
+				}
+			}
+
+			// 모든 고객을 방문한 상태에서 집으로 돌아가는 최소 거리 계산
+			minDistance = MAX;
+			int allVisitMask = (1 << n) - 1;
+			for (int i = 0; i < n; i++) {
+				if (dp[allVisitMask][i] != MAX) {
+					minDistance = Math.min(minDistance, dp[allVisitMask][i] + calculateDistance(customerArr[i], home));
+				}
+			}
+
 			sb.append('#').append(tc).append(' ').append(minDistance).append('\n');
 		}
-		
+
 		System.out.println(sb);
 	}
-	
-	// DFS를 이용한 순열 탐색 함수
-	public static void dfs(Point currentPoint, int currentDistance, int visitedCount) {
-		// 현재 거리가 이미 최소 거리보다 크거나 같으면 더 이상 탐색할 필요 없음
-		if (currentDistance >= minDistance) {
-			return;
-		}
-		
-		// 모든 고객을 방문했다면
-		if (visitedCount == n) {
-			// 마지막 고객에서 집까지의 거리 추가
-			currentDistance += calculateDistance(currentPoint, home);
-			
-			// 최소 거리 갱신
-			minDistance = Math.min(minDistance, currentDistance);
-			return;
-		}
-		
-		// 다음 방문할 고객을 선택
-		for (int i = 0; i < n; i++) {
-			if (!visited[i]) {
-				visited[i] = true;
-				Point nextPoint = customerArr[i];
-				int newDistance = currentDistance + calculateDistance(currentPoint, nextPoint);
-				
-				dfs(nextPoint, newDistance, visitedCount + 1);
-				
-				visited[i] = false; // 백트래킹
-			}
-		}
-	}
-	
+
 	// 맨해튼 거리 계산 메서드
 	public static int calculateDistance(Point p1, Point p2) {
 		return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
