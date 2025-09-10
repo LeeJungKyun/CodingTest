@@ -1,68 +1,70 @@
 import java.io.*;
 import java.util.*;
 
-public class Main{
+/**
+ * @author 이정균
+ * 
+ * BFS
+ * 
+ */
+public class Main {
+	static int computerCount;
+	static int pairCount;
+	static ArrayList<Integer>[] adjList;
+	static boolean[] visited;
+	
+	static BufferedReader br;
+	static StringBuilder sb = new StringBuilder();
+	static StringTokenizer st;
 
-    static int[][] graph;
-    static LinkedList<Integer>[] adjList;
-    static int result = 0;
-    static boolean[] visited;
-    static int n;
-    static int p;
+	public static void main(String[] args) throws IOException {
+		br = new BufferedReader(new InputStreamReader(System.in));
+		
+		//컴퓨터의 개수 입력
+		computerCount = Integer.parseInt(br.readLine());
+		
+		//인접리스트, 방문배열 초기화
+		adjList = new ArrayList[computerCount + 1];
+		for(int i = 1; i <= computerCount; i++)
+			adjList[i] = new ArrayList<>();
+		
+		visited = new boolean[computerCount + 1];
+		
+		//인접 쌍 개수 입력
+		pairCount = Integer.parseInt(br.readLine());
+		
+		for(int i = 0; i < pairCount; i++) {
+			st = new StringTokenizer(br.readLine());
+			int computer1 = Integer.parseInt(st.nextToken());
+			int computer2 = Integer.parseInt(st.nextToken());
+			
+			//양방향 연결
+			adjList[computer1].add(computer2);
+			adjList[computer2].add(computer1);
+		}
+		
+		//1번 바이러스로부터 시작
+		ArrayDeque<Integer> queue = new ArrayDeque<>();
+		queue.offer(1);
+		visited[1] = true;
+		
+		while(!queue.isEmpty()) {
+			int currentComputer = queue.poll();
+			
+			for(int nextComputer : adjList[currentComputer]) {
+				if(!visited[nextComputer]) {
+					visited[nextComputer] = true;
+					queue.offer(nextComputer);
+				}
+			}
+		}
+		//BFS끝
+		//감염된 컴퓨터 확인
+		int count = 0;
+		for(boolean b : visited) {
+			if(b) count++;
+		}
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-
-        n = Integer.parseInt(st.nextToken());
-        st = new StringTokenizer(br.readLine());
-        p = Integer.parseInt(st.nextToken());
-
-        //인접행렬
-        graph = new int[n+1][n+1];
-        //인접리스트
-        adjList = new LinkedList[n+1];
-        visited = new boolean[n + 1];
-
-        for(int i = 0; i <= n; i++){
-            visited[i] = false;
-            adjList[i] = new LinkedList<>();
-            for(int j = 0; j <= n; j++){
-                graph[i][j] = 0;
-
-            }
-        }
-        for(int i = 0; i < p; i++){
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            //인접리스트 초기화
-            graph[a][b] = graph[b][a] = 1;
-            //인접행렬 초기화
-            adjList[a].add(b);
-            adjList[b].add(a);
-        }
-        dfs_2(1);
-        System.out.println(result);
-    }
-
-    public static void dfs(int start){
-        visited[start] = true;
-        result++;
-        for(int i = 0; i <= n; i++){
-            if(graph[start][i] == 1 && !visited[i]){
-                dfs(i);
-            }
-        }
-    }
-
-    public static void dfs_2(int start){
-        visited[start] = true;
-        for(int i : adjList[start]){
-            if(!visited[i]){
-                result++;
-                dfs_2(i);
-            }
-        }
-    }
+		System.out.println(count - 1);
+	}
 }
