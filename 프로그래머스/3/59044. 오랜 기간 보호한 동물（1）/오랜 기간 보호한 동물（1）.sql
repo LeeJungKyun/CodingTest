@@ -1,3 +1,5 @@
+-- 서브쿼리를 작성을 해서 (from 절에 테이블이 아닌 select 를 넣어서)
+
 SELECT A.NAME, A.DATETIME
 FROM ANIMAL_INS A
 WHERE A.ANIMAL_ID
